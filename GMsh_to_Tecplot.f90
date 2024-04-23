@@ -15,18 +15,21 @@
       CHARACTER(300),pointer,dimension(:) :: filename
       CHARACTER(200) :: fn,chN,chE,chl,fileall,fileend
       
-      nbody=6
+      ! USER INPUT
+      !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+      nbody=1
       allocate(filenodes(nbody),fileelements(nbody),filename(nbody))
 
-      filename(1)='Ahmed_FEM_Head_0.020m.msh'
-!      filename(2)='Ahmed_FEM_Slope_0.004m.msh'
-      filename(2)='Ahmed_FEM_Back_0.020m.msh'
-      filename(3)='Ahmed_FEM_Top_0.020m.msh'
-      filename(4)='Ahmed_FEM_Bot_0.020m.msh'
-      filename(5)='Ahmed_FEM_Right_0.020m.msh'
-      filename(6)='Ahmed_FEM_Left_0.020m.msh'
-      fileall='Ahmed_FEM_All_0.020m.dat'
-      fileend='Ahmed_FEM_Elements_0.020m.dat'
+      filename(1)='NACA-0012-assembly-1.0mm.msh'
+!      filename(2)='Ahmed_FEM_Slope_0.008m.msh'
+!      filename(3)='Ahmed_FEM_Back_0.008m.msh'
+!      filename(4)='Ahmed_FEM_Top_0.008m.msh'
+!      filename(5)='Ahmed_FEM_Bot_0.008m.msh'
+!      filename(6)='Ahmed_FEM_Right_0.008m.msh'
+!      filename(7)='Ahmed_FEM_Left_0.008m.msh'
+      fileall='NACA-0012-1.0mm_Tecplot.dat'
+      fileend='NACA-0012-1.0mm_FEM_Elements.dat'
+      !%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
 
@@ -48,7 +51,9 @@
      
       fNmax=-1000 ; fEmax=-1000
       DO body=1,nbody
-      
+ 
+! GMSH > 4 READING ALGORITHM - ADAPT FORMAT TO THE 3 !
+!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       fn=trim(adjustl(filename(body)))
       WRITE(6,*) 'Reading '//trim(adjustl(filename(body)))//'...'
 
@@ -141,31 +146,40 @@
 	do dumlines=1,node     ! read all node ID
 	  read(20,*) 
 	end do
-	do l=1,node	      ! read all node cordinates
-	  ipts=ipts+1	  
-	  if(ref1.eq.1 .and. ref2.eq.2 .and. ref3.eq.3)then  !XYZ
-	    read(20,*) xf(ipts,body),yf(ipts,body),zf(ipts,body)
+	if(ref1.eq.1 .and. ref2.eq.2 .and. ref3.eq.3)then  !XYZ
+	  do l=1,node	      
+	    ipts=ipts+1	; read(20,*) xf(ipts,body),yf(ipts,body),zf(ipts,body)
+	  end do
 	  
-	  else if(ref1.eq.2 .and. ref2.eq.1 .and. ref3.eq.3)then  !YXZ
-	    read(20,*) yf(ipts,body),xf(ipts,body),zf(ipts,body)
+	else if(ref1.eq.2 .and. ref2.eq.1 .and. ref3.eq.3)then  !YXZ
+	  do l=1,node	      
+	    ipts=ipts+1	; read(20,*) yf(ipts,body),xf(ipts,body),zf(ipts,body)
+	  end do
 	  
-	  else if(ref1.eq.1 .and. ref2.eq.3 .and. ref3.eq.2)then  !XZY
-	    read(20,*) xf(ipts,body),zf(ipts,body),yf(ipts,body)
+	else if(ref1.eq.1 .and. ref2.eq.3 .and. ref3.eq.2)then  !XZY
+	  do l=1,node	      
+	    ipts=ipts+1	; read(20,*) xf(ipts,body),zf(ipts,body),yf(ipts,body)
+	  end do
 	  
-	  else if(ref1.eq.3 .and. ref2.eq.1 .and. ref3.eq.2)then  !ZXY
-	    read(20,*) zf(ipts,body),xf(ipts,body),yf(ipts,body)
+	else if(ref1.eq.3 .and. ref2.eq.1 .and. ref3.eq.2)then  !ZXY
+	  do l=1,node	      
+	    ipts=ipts+1	; read(20,*) zf(ipts,body),xf(ipts,body),yf(ipts,body)
+	  end do
 
-	  else if(ref1.eq.2 .and. ref2.eq.3 .and. ref3.eq.1)then  !YZX
-	    read(20,*) yf(ipts,body),zf(ipts,body),xf(ipts,body)
+	else if(ref1.eq.2 .and. ref2.eq.3 .and. ref3.eq.1)then  !YZX
+	  do l=1,node	      
+	    ipts=ipts+1	; read(20,*) yf(ipts,body),zf(ipts,body),xf(ipts,body)
+	  end do
 	  
-	  else if(ref1.eq.3 .and. ref2.eq.2 .and. ref3.eq.1)then  !ZYX
-	    read(20,*) zf(ipts,body),yf(ipts,body),xf(ipts,body)
-	  end if
-!	  read(20,*) xf(ipts),yf(ipts),zf(ipts)
-	  xf(ipts,body)=xf(ipts,body)/1000+Cxx
-	  yf(ipts,body)=yf(ipts,body)/1000+Cyy
-	  zf(ipts,body)=zf(ipts,body)/1000+Czz
-	end do
+	else if(ref1.eq.3 .and. ref2.eq.2 .and. ref3.eq.1)then  !ZYX
+	  do l=1,node	    
+	    ipts=ipts+1	; read(20,*) zf(ipts,body),yf(ipts,body),xf(ipts,body)
+	  end do
+	end if
+!	read(20,*) xf(ipts),yf(ipts),zf(ipts)
+	xf(ipts,body)=xf(ipts,body)/1000+Cxx
+	yf(ipts,body)=yf(ipts,body)/1000+Cyy
+	zf(ipts,body)=zf(ipts,body)/1000+Czz
       end do
       read(20,*) !#EndNodes'
 
@@ -196,6 +210,7 @@
       fileelements(body)=ipts
       END DO !nbody
       
+!%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
       
       WRITE(6,*) 
       WRITE(6,*) 'FEM NODES AND ELEMENTS'
@@ -244,9 +259,6 @@
         xc(l,body) = (xf(p1,body) + xf(p2,body) + xf(p3,body)) / 3.d0
         yc(l,body) = (yf(p1,body) + yf(p2,body) + yf(p3,body)) / 3.d0
         zc(l,body) = (zf(p1,body) + zf(p2,body) + zf(p3,body)) / 3.d0
-
-
-!        WRITE(6,'(a,I12,3F12.3)') 'l,xc,yc,zc:',l,xc(l),yc(l),zc(l)
 
         ! Length of the size of the triangle:
         a1 = sqrt((xf(p2,body) - xf(p1,body))**2 + (yf(p2,body) - yf(p1,body))**2 + (zf(p2,body) - zf(p1,body))**2)
@@ -371,11 +383,11 @@
 
       fn='CloudPoints_'//trim(adjustl(fileall))
       open(200,file=fn)
-        write(200,'(a)') 'Variables=x,y,z,area,Px_area,Py_area,Pz_area,element'
+        write(200,'(a)') 'Variables=x,y,z,area,Px_area,Py_area,Pz_area'
         DO body=1,nbody
         write(200,'(a)') 'ZONE T='//trim(adjustl(filename(body)))
         do l=1,fileelements(body)
-          write(200,'(7E14.4,I9)') nx(l,body),ny(l,body),nz(l,body),area(l,body),Px_area(l,body),Py_area(l,body),Pz_area(l,body),l
+          write(200,'(7E14.4)') nx(l,body),ny(l,body),nz(l,body),area(l,body),Px_area(l,body),Py_area(l,body),Pz_area(l,body)
         end do
         END DO
       close(200)
@@ -386,13 +398,13 @@
       do l=1,fileelements(1)
         AreaProjected=AreaProjected+Px_area(l,1)
       end do
-      WRITE(6,'(a,F9.6,F9.3)') ' Projected Area Head:',AreaProjected,AreaProjected/0.112421*100
+      WRITE(6,'(a,F9.6,F9.3)') ' Projected Area:',AreaProjected,AreaProjected/0.112421*100
 
-      AreaProjected=0
-      do l=1,fileelements(2)
-        AreaProjected=AreaProjected+Px_area(l,2)
-      end do
-      WRITE(6,'(a,F9.6,F9.3)') ' Projected Area Back:',AreaProjected,AreaProjected/0.112421*100
+!      AreaProjected=0
+!      do l=1,fileelements(2)
+!        AreaProjected=AreaProjected+Px_area(l,2)
+!      end do
+!      WRITE(6,'(a,F9.6,F9.3)') ' Projected Area Back:',AreaProjected,AreaProjected/0.112421*100
 
 
       end 
